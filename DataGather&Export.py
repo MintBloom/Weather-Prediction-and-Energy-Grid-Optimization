@@ -20,6 +20,8 @@ def get_historic_weather_data(latitude, longitude, start_date, end_date):
     print(dataframe.head())  # check the first rows of the dataframe
     print(dataframe.info())  # checks the data types and non-null counts
     print(dataframe.isnull().sum())  # check for missing values
+
+    dataframe.to_csv("historic_weather_data.csv", index=False) # saving the dataframe to a new CSV file in the weather-data folder
     
     return dataframe
 
@@ -38,16 +40,17 @@ def read_demand_data_from_csvfile(file_path): # file_path is the path to the CSV
             df["SETTLEMENT_DATE"] = pd.to_datetime(df["SETTLEMENT_DATE"], format="%d/%m/%Y") # convert the settlement_date column format to datetime
             df = df.rename(columns={df.columns[2]: "ND"}) # name the third column as ND (National Demand)
             df["SETTLEMENT_PERIOD"] = pd.to_numeric(df["SETTLEMENT_PERIOD"]) # convert the settlement_period column to numeric
-            
             df["datetime"] = df["SETTLEMENT_DATE"] + pd.to_timedelta((df["SETTLEMENT_PERIOD"] - 1) * 30, unit="m") # combine settlement_date and settlement_period columns into a single datetime column
-            df_hourly = df.set_index(["SETTLEMENT_DATE", "SETTLEMENT_PERIOD"]) # create a composite key index
-            df_hourly = df[df["SETTLEMENT_PERIOD"] % 2 == 1].copy() # extract hourly data and drop the half-hourly data (this line can be removed if half-hourly data is needed)
-
+            
+            df = df[df["SETTLEMENT_PERIOD"] % 2 == 1] # extract hourly data and drop the half-hourly data (this line can be removed if half-hourly data is needed)
+            df = df.set_index(["SETTLEMENT_DATE", "SETTLEMENT_PERIOD"]) # create a composite key index
+            
             print(df.shape)  # show the columns and rows of the dataframe
             print(df.dtypes)  # check the data types of the columns
             print(df.head())  # check the first rows of the dataframe
             print(df.isnull().sum())  # check for missing values
-            df_hourly.to_csv('energy-demand-data\\' + "new_" + entry.name, index=False) # saving the dataframe to a new CSV file in the energy_demand_dataframes folder
+
+            df.to_csv('energy-demand-data\\' + "new_" + entry.name   ) # saving the dataframe to a new CSV file in the energy_demand_dataframes folder
             energy_demand_dataframes.append(df) # adding the new dataframe to the list of dataframes
             print(f"{entry.name} converted to csv")
     
@@ -60,7 +63,7 @@ def combine_demand_dataframes(list_of_dataframes):
 
     print(final_df.head()) 
     print(final_df.shape) 
-    print(final_df["SETTLEMENT_DATE"].min(), final_df["SETTLEMENT_DATE"].max())  # check the minimum and maximum dates in the 
+    print(final_df.index.get_level_values("SETTLEMENT_DATE").min(), final_df.index.get_level_values("SETTLEMENT_DATE").max())  # check the minimum and maximum dates in the 
     final_df.to_csv('energy-demand-data\\' + "concatenated_demand_data.csv", index=False)
     return final_df
 
