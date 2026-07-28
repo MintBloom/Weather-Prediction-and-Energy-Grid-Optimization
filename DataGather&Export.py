@@ -90,6 +90,6 @@ if __name__ == "__main__":
     historic_weather_df = get_historic_weather_data(51.5085, -0.1257, "2020-01-01", "2026-06-30") # fetch weather data and assemble into dataframe
     export_to_postgresql("postgres", "", "localhost", "5432", "Weather and Energy Database", historic_weather_df, "history_weather_data") # export dataframe to sql database
 
-    energy_demand_df = read_demand_data_from_csvfile(r"C:\Users\asteg\Code\Github\Weather-and-Energy-Grid-Optimization\raw-energy-demand-data") # read energy data from csv and assemble into dataframe, substitute with your own file path
+    energy_demand_df = read_demand_data_from_csvfile(r"C:\Users\asteg\Code\Github\Weather-Prediction-and-Energy-Grid-Optimization\raw-energy-demand-data") # read energy data from csv and assemble into dataframe, substitute with your own file path
     combined_demand_df = combine_demand_dataframes(energy_demand_df) # concatenate all the dataframes into one dataframe
     export_to_postgresql("postgres", "", "localhost", "5432", "Weather and Energy Database", combined_demand_df, "energy_demand_data") # export dataframe to sql database
