@@ -50,7 +50,7 @@ def read_demand_data_from_csvfile(file_path): # file_path is the path to the CSV
             print(df.head())  # check the first rows of the dataframe
             print(df.isnull().sum())  # check for missing values
 
-            df.to_csv('energy-demand-data\\' + "new_" + entry.name   ) # saving the dataframe to a new CSV file in the energy_demand_dataframes folder
+            convert_to_csv(df, 'energy-demand-data\\' + "new_" + entry.name) # save dataframe as new CSV file in energy_demand_dataframes folder
             energy_demand_dataframes.append(df) # adding the new dataframe to the list of dataframes
             print(f"{entry.name} converted to csv")
     
@@ -63,8 +63,8 @@ def combine_demand_dataframes(list_of_dataframes):
 
     print(final_df.head()) 
     print(final_df.shape) 
-    print(final_df.index.get_level_values("SETTLEMENT_DATE").min(), final_df.index.get_level_values("SETTLEMENT_DATE").max())  # check the minimum and maximum dates in the 
-    final_df.to_csv('energy-demand-data\\' + "concatenated_demand_data.csv", index=False)
+    print(final_df.index.get_level_values("SETTLEMENT_DATE").min(), final_df.index.get_level_values("SETTLEMENT_DATE").max())  # check the minimum and maximum dates in the dataframe
+    convert_to_csv(final_df, 'energy-demand-data\\' + "concatenated_demand_data.csv") # save dataframe as new CSV file in energy_demand_dataframes folder
     return final_df
 
 
@@ -84,6 +84,12 @@ def export_to_postgresql(username, password, host, port, database_name, df, tabl
     df.to_sql(table_name, con=engine, if_exists="append", index=False)
 
     print("Data exported to PostgreSQL database successfully.")
+
+def convert_to_csv(df, file_path):
+    # converting dataframe to csv file
+    df.to_csv(file_path, index=False)
+
+    print(f"Dataframe converted to CSV file at {file_path} successfully.")
     
 
 if __name__ == "__main__":
