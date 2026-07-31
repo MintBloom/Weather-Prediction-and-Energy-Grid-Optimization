@@ -5,7 +5,7 @@ import os               # for reading files and directories
 
 def get_historic_weather_data(latitude, longitude, start_date, end_date):
     # gathering data from the open-meteo api
-    url = f"https://archive-api.open-meteo.com/v1/archive?latitude={latitude}&longitude={longitude}&start_date={start_date}&end_date={end_date}&hourly=temperature_2m,precipitation,rain,snowfall,wind_speed_10m,shortwave_radiation,cloudcover&timezone=GMT"
+    url = f"https://archive-api.open-meteo.com/v1/archive?latitude={latitude}&longitude={longitude}&start_date={start_date}&end_date={end_date}&hourly=temperature_2m,direct_normal_irradiance,apparent_temperature,relative_humidity_2m,precipitation,rain,snowfall,wind_speed_100m,shortwave_radiation,cloudcover&timezone=GMT"
     response = requests.get(url)
     data = response.json()
     
@@ -21,10 +21,9 @@ def get_historic_weather_data(latitude, longitude, start_date, end_date):
     print(dataframe.info())  # checks the data types and non-null counts
     print(dataframe.isnull().sum())  # check for missing values
 
-    dataframe.to_csv("historic_weather_data.csv", index=False) # saving the dataframe to a new CSV file in the weather-data folder
+    convert_to_csv(dataframe, 'historic-weather-data\\' + "historic_weather_data.csv") # saving the dataframe to a new CSV file in the weather-data folder
     
     return dataframe
-
 
 
 def read_demand_data_from_csvfile(file_path): # file_path is the path to the CSV file containing demand data
@@ -50,7 +49,7 @@ def read_demand_data_from_csvfile(file_path): # file_path is the path to the CSV
             print(df.head())  # check the first rows of the dataframe
             print(df.isnull().sum())  # check for missing values
 
-            convert_to_csv(df, 'energy-demand-data\\' + "new_" + entry.name) # save dataframe as new CSV file in energy_demand_dataframes folder
+            convert_to_csv(df, 'modified-energy-data\\' + "new_" + entry.name) # save dataframe as new CSV file in energy_demand_dataframes folder
             energy_demand_dataframes.append(df) # adding the new dataframe to the list of dataframes
             print(f"{entry.name} converted to csv")
     
@@ -64,7 +63,7 @@ def combine_demand_dataframes(list_of_dataframes):
     print(final_df.head()) 
     print(final_df.shape) 
     print(final_df.index.get_level_values("SETTLEMENT_DATE").min(), final_df.index.get_level_values("SETTLEMENT_DATE").max())  # check the minimum and maximum dates in the dataframe
-    convert_to_csv(final_df, 'energy-demand-data\\' + "concatenated_demand_data.csv") # save dataframe as new CSV file in energy_demand_dataframes folder
+    convert_to_csv(final_df, 'modified-energy-data\\' + "concatenated_demand_data.csv") # save dataframe as new CSV file in energy_demand_dataframes folder
     return final_df
 
 
@@ -94,8 +93,8 @@ def convert_to_csv(df, file_path):
 
 if __name__ == "__main__":
     historic_weather_df = get_historic_weather_data(51.5085, -0.1257, "2020-01-01", "2026-06-30") # fetch weather data and assemble into dataframe
-    export_to_postgresql("postgres", "", "localhost", "5432", "Weather and Energy Database", historic_weather_df, "history_weather_data") # export dataframe to sql database
+    export_to_postgresql("postgres", "#76h25T", "localhost", "5432", "Weather and Energy Database", historic_weather_df, "history_weather_data") # export dataframe to sql database
 
-    energy_demand_df = read_demand_data_from_csvfile(r"C:\Users\asteg\Code\Github\Weather-Prediction-and-Energy-Grid-Optimization\raw-energy-demand-data") # read energy data from csv and assemble into dataframe, substitute with your own file path
+    energy_demand_df = read_demand_data_from_csvfile(r"C:\Users\asteg\Code\Github\Weather-Prediction-and-Energy-Grid-Optimization\raw-energy-data") # read energy data from csv and assemble into dataframe, substitute with your own file path
     combined_demand_df = combine_demand_dataframes(energy_demand_df) # concatenate all the dataframes into one dataframe
-    export_to_postgresql("postgres", "", "localhost", "5432", "Weather and Energy Database", combined_demand_df, "energy_demand_data") # export dataframe to sql database
+    export_to_postgresql("postgres", "#76h25T", "localhost", "5432", "Weather and Energy Database", combined_demand_df, "energy_demand_data") # export dataframe to sql database

@@ -15,12 +15,12 @@ def QueryToPostgresql(username, password, host, port, database_name, ):
     engine = create_engine(f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{database_name}") 
     
     df = pd.read_sql(f"""SELECT d.datetime, d."ND", d."TSD", d."EMBEDDED_SOLAR_GENERATION", d."EMBEDDED_WIND_GENERATION",
-                        w.temperature_2m, w.cloudcover, w.shortwave_radiation
+                        w.temperature_2m, w.direct_normal_irradiance, w.apparent_temperature, w.relative_humidity_2m, w.cloudcover, w.shortwave_radiation
                         FROM energy_demand_data d
                         INNER JOIN history_weather_data w ON d.datetime = w.datetime; """, 
                         con=engine)
 
-    convert_to_csv(df, 'energy-demand-data\\' + "datetime_join.csv")
+    convert_to_csv(df, 'modified-energy-data\\' + "datetime_join.csv")
 
     print("Data exported to PostgreSQL database successfully.")
 
